@@ -1,0 +1,5 @@
+# Optional: dish photos via SD-Turbo. The app runs without these and shows a placeholder.
+torch>=2.2
+diffusers>=0.30
+transformers>=4.40
+accelerate

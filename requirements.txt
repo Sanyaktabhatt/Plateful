@@ -1,0 +1,6 @@
+# Python 3.10–3.12 (TensorFlow has no wheels for 3.13+ yet)
+tensorflow>=2.17,<2.21
+keras-hub>=0.20        # successor to KerasNLP; same GPT-2 / BERT presets
+flask>=3.0
+datasets>=2.19         # pulls in huggingface_hub, pandas, pyarrow
+pandas

@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<script>try { const t = localStorage.getItem("larder-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Larder — recipes from what you have</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23b0402a'/%3E%3Ctext x='16' y='24' font-family='Georgia,serif' font-size='22' font-weight='700' fill='%23fbf8f2' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..700,0..100;1,9..144,300..700,0..100&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="masthead">
+    <div class="wrap topline">
+      <span>Recipes from what you have</span>
+      <span class="topline-right">
+        <span id="status-line" class="status-line">Checking the kitchen…</span>
+        <button type="button" class="theme-toggle" id="theme-toggle">Lights</button>
+      </span>
+    </div>
+    <div class="wrap brand">
+      <a href="#cook" class="wordmark">Larder</a>
+      <nav class="nav" aria-label="Sections">
+        <a href="#cook" data-view="cook">Cook</a>
+        <a href="#taste-test" data-view="taste-test">The Taste Test</a>
+        <a href="#method" data-view="method">Method</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============================ COOK ============================ -->
+    <section id="view-cook" class="view" data-view="cook">
+      <div class="wrap compose">
+        <div class="compose-intro">
+          <p class="kicker">Tonight’s larder</p>
+          <h1 class="display">What have you got <em>in the kitchen?</em></h1>
+          <p class="lede">List what’s on the shelf. A GPT-2 model trained on a few thousand home recipes
+            writes a full recipe around it, then checks it for allergens and quantities no
+            cook would use.</p>
+          <div class="starters">
+            <p class="kicker kicker--plain">Or start from</p>
+            <ul>
+              {% set names = ["a Sunday roast chicken", "a pot of pasta", "a tray of cookies", "a chickpea curry", "glazed salmon"] %}
+              {% for s in sets %}
+              <li><button type="button" class="starter" data-ingredients="{{ s|join(', ') }}">{{ names[loop.index0] }}</button></li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+
+        <form id="cook-form" class="card order-slip" autocomplete="off">
+          <label for="ingredients" class="field-label">
+            <span>Ingredients</span>
+            <span class="hint">one per line, or separated by commas</span>
+          </label>
+          <textarea id="ingredients" name="ingredients" rows="6" spellcheck="false"
+            placeholder="2 chicken thighs&#10;a lemon&#10;garlic&#10;rosemary"></textarea>
+
+          <fieldset class="field">
+            <legend class="field-label"><span>Written by</span></legend>
+            <div class="seg" role="radiogroup">
+              <label><input type="radio" name="model" value="finetuned" checked><span>Trained cook <small>fine-tuned</small></span></label>
+              <label><input type="radio" name="model" value="base"><span>Untrained <small>base GPT-2</small></span></label>
+              <label><input type="radio" name="model" value="both"><span>Both <small>side by side</small></span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="field">
+            <legend class="field-label"><span>Avoid</span><span class="hint">we’ll warn you if the recipe uses any</span></legend>
+            <div class="avoid">
+              {% for a in allergens %}
+              <label><input type="checkbox" name="avoid" value="{{ a }}"><span>{{ a }}</span></label>
+              {% endfor %}
+            </div>
+          </fieldset>
+
+          <div class="form-foot">
+            <label class="check"><input type="checkbox" id="want-image" checked> Photograph the dish</label>
+            <button type="submit" class="btn" id="submit-btn">Write the recipe <span aria-hidden="true">→</span></button>
+          </div>
+          <p class="form-error" id="form-error" role="alert" hidden></p>
+        </form>
+      </div>
+
+      <div class="wrap" id="progress" hidden>
+        <ol class="progress">
+          <li data-step="read">Reading your list</li>
+          <li data-step="write">Writing the recipe</li>
+          <li data-step="check">Checking allergens &amp; amounts</li>
+          <li data-step="photo">Photographing the dish</li>
+        </ol>
+      </div>
+
+      <div id="result"></div>
+    </section>
+
+    <!-- ========================= TASTE TEST ========================= -->
+    <section id="view-taste-test" class="view" data-view="taste-test" hidden>
+      <div class="wrap">
+        <header class="section-head">
+          <p class="kicker">The Taste Test</p>
+          <h1 class="display display--md">Same five shopping lists, <em>two cooks.</em></h1>
+          <p class="lede">Untrained GPT-2 and the fine-tuned model get the identical prompt, sampler and random seed.
+            Nothing here is cherry-picked: this is the first sample from each.</p>
+        </header>
+        <div id="taste-summary"></div>
+        <div id="taste-sets"></div>
+      </div>
+    </section>
+
+    <!-- =========================== METHOD =========================== -->
+    <section id="view-method" class="view" data-view="method" hidden>
+      <div class="wrap narrow">
+        <header class="section-head">
+          <p class="kicker">Method</p>
+          <h1 class="display display--md">How the recipe <em>gets written</em></h1>
+        </header>
+
+        <article class="method-step">
+          <span class="step-no">01</span>
+          <div>
+            <h2>The prompt</h2>
+            <p>Every training recipe is rewritten into one fixed shape. The first line holds the ingredient
+              names only, shuffled, with no amounts, because that’s what people actually type. Each section
+              has a marker, so the output can be parsed back into a recipe and generation stops cleanly at
+              <code>&lt;|end|&gt;</code>. At serving time the prompt ends at <code>&lt;|title|&gt;</code>:
+              the model names the dish first, and that keeps the rest of the recipe on track.</p>
+<pre class="specimen"><span class="m">&lt;|recipe|&gt;</span>
+<span class="m">&lt;|ingredients|&gt;</span> lemon; chicken thighs; rosemary; garlic
+<span class="m">&lt;|title|&gt;</span> <span class="g">Lemon Rosemary Chicken</span>
+<span class="m">&lt;|ingredient_list|&gt;</span>
+<span class="g">- 2 lb. chicken thighs
+- 4 cloves garlic, minced</span>
+<span class="m">&lt;|directions|&gt;</span>
+<span class="g">1. Heat oven to 425°. …</span>
+<span class="m">&lt;|end|&gt;</span></pre>
+            <p class="caption">Grey: the prompt. Ink: what the model writes.</p>
+          </div>
+        </article>
+
+        <article class="method-step">
+          <span class="step-no">02</span>
+          <div>
+            <h2>Fine-tuning GPT-2</h2>
+            <p>GPT-2 base (124M parameters) from KerasHub, fine-tuned on recipes from RecipeNLG. Training runs in
+              TensorFlow 2: Keras 3 on the TensorFlow backend, with <code>tf.data</code> input and AdamW
+              on a linear-decay schedule.</p>
+            <div id="training-stats" class="stats"></div>
+            <figure id="loss-figure" class="loss-figure" hidden>
+              <figcaption><span class="fig-title">Training loss</span> <span class="fig-sub">cross-entropy per token, logged every 10 steps</span></figcaption>
+              <div class="chart" id="loss-chart"></div>
+            </figure>
+          </div>
+        </article>
+
+        <article class="method-step">
+          <span class="step-no">03</span>
+          <div>
+            <h2>Reading your list</h2>
+            <p>A small BERT model tags each word you type as an <span class="tag tag--qty">amount</span>, a
+              <span class="tag tag--unit">unit</span> or an <span class="tag tag--ing">ingredient</span>. Only
+              the ingredient names go into the prompt. Amounts are kept so they can be checked.
+              RecipeNLG has no hand labels for this, so the tagger learns from labels a rule-based parser
+              produces (weak supervision), with augmentation so it copes with bare names and lowercase.</p>
+            <div id="ner-stats" class="stats"></div>
+            <p>The tagged names and the recipe title become a food-photography brief for
+              <strong>SD-Turbo</strong>, a Stable Diffusion model distilled to run in two denoising steps.</p>
+          </div>
+        </article>
+
+        <article class="method-step">
+          <span class="step-no">04</span>
+          <div>
+            <h2>The safety pass</h2>
+            <p>Both your list and the generated recipe are checked, since the model often adds butter, flour or
+              soy sauce you never mentioned.</p>
+            <ul class="plain-list">
+              <li><strong>Allergens.</strong> The US “Big 9” plus mustard, celery and sulphites from the EU list, with
+                exceptions so coconut milk isn’t dairy and nutmeg isn’t a nut.</li>
+              <li><strong>Impossible amounts.</strong> Zero or negative quantities, a cup of salt, 40 eggs, a teaspoon of
+                chicken breast, 900°F ovens, 60-hour simmers. Each one is marked <em>unusual</em> or
+                <em>impossible</em>.</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <span>Larder · GPT-2 fine-tuned in Keras on RecipeNLG</span>
+      <span>Generated recipes are untested. Check allergens yourself before cooking for others.</span>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

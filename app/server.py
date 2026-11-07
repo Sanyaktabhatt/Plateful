@@ -105,8 +105,23 @@ def fetch_models():
                           allow_patterns=["gpt2_recipes/*", "bert_ner/*"])
 
 
+def warm_up():
+    """Load and compile the fine-tuned model before the first visitor arrives."""
+    if not model.finetuned_available():
+        return
+    try:
+        print("warming up fine-tuned model ...", flush=True)
+        with gen_lock:
+            pipeline.run("chicken, garlic, lemon", which="finetuned")
+        print("model ready", flush=True)
+    except Exception as e:  # keep serving; the error will show on first request
+        print(f"warm-up failed: {type(e).__name__}: {e}", flush=True)
+
+
 if __name__ == "__main__":
     import os
     fetch_models()
+    if os.environ.get("PLATEFUL_WARMUP", "1") == "1":
+        threading.Thread(target=warm_up, daemon=True).start()
     app.run(host=os.environ.get("HOST", "127.0.0.1"), port=int(os.environ.get("PORT", 5045)),
             debug=False, threaded=True)

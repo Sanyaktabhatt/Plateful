@@ -1,4 +1,4 @@
-// Larder front end. No framework: one page, three views, a small JSON API.
+// Plateful front end. No framework: one page, three views, a small JSON API.
 (() => {
   "use strict";
 
@@ -408,7 +408,7 @@
   const label = () => { $("#theme-toggle").textContent = isDark() ? "Lights on" : "Lights off"; };
   $("#theme-toggle").addEventListener("click", () => {
     root.dataset.theme = isDark() ? "light" : "dark";
-    try { localStorage.setItem("larder-theme", root.dataset.theme); } catch {}
+    try { localStorage.setItem("plateful-theme", root.dataset.theme); } catch {}
     label();
   });
   label();

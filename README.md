@@ -1,4 +1,4 @@
-# Larder: recipe generator fine-tuned in Keras (P45)
+# Plateful: recipe generator fine-tuned in Keras (P45)
 
 Type the ingredients you have. A GPT-2 model fine-tuned on RecipeNLG writes a full recipe
 (title, measured ingredient list, numbered method), a diffusion model photographs the dish,

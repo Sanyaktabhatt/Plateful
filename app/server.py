@@ -1,4 +1,4 @@
-"""Larder: the recipe app. Flask backend serving one page plus a small JSON API.
+"""Plateful: the recipe app. Flask backend serving one page plus a small JSON API.
 
     python app/server.py            # http://127.0.0.1:5045
 """

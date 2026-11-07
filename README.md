@@ -1,3 +1,13 @@
+---
+title: Plateful
+emoji: 🍳
+colorFrom: red
+colorTo: yellow
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Plateful: recipe generator fine-tuned in Keras (P45)
 
 Type the ingredients you have. A GPT-2 model fine-tuned on RecipeNLG writes a full recipe

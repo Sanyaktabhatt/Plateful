@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -27,3 +28,7 @@ EVAL_INGREDIENT_SETS = [
     ["chickpeas", "coconut milk", "onion", "curry powder", "spinach"],
     ["salmon", "soy sauce", "honey", "ginger", "rice"],
 ]
+
+# Hugging Face model repo holding models/gpt2_recipes and models/bert_ner.
+# When set and the weights aren't on disk, they are downloaded at startup.
+MODELS_REPO = os.environ.get("PLATEFUL_MODELS_REPO")

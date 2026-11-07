@@ -12,6 +12,19 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+  <!-- hand-drawn ingredient sketches, reused via <use> -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-lemon" viewBox="0 0 48 48"><circle cx="24" cy="24" r="16"/><circle cx="24" cy="24" r="12.5"/><path d="M24 11.5v25M11.5 24h25M15.2 15.2l17.6 17.6M32.8 15.2 15.2 32.8"/></symbol>
+      <symbol id="i-garlic" viewBox="0 0 48 48"><path d="M24 8c-2 4-10 8-10 19 0 8 5 13 10 13s10-5 10-13c0-11-8-15-10-19z"/><path d="M24 14c-3 8-4 18-2 26M24 14c3 8 4 18 2 26M20 40l-2 3M24 40v3M28 40l2 3"/></symbol>
+      <symbol id="i-chili" viewBox="0 0 48 48"><path d="M20 13c10 1 16 11 14 25-1 3-4 2-4-1-1-10-6-17-13-19-3-1-2-5 3-5z"/><path d="M19 13c0-4 3-6 7-6"/></symbol>
+      <symbol id="i-herb" viewBox="0 0 48 48"><path d="M24 42c0-12 1-24 4-36"/><path d="M24 34c-6-1-9-5-9-9 5 1 8 4 9 9zM24 34c6-2 9-6 9-10-5 1-8 4-9 10zM25 22c-5-1-8-5-7-9 4 1 7 4 7 9zM25.5 22c5.5-2 7.5-6 6.5-10-4 1-6 5-6.5 10z"/></symbol>
+      <symbol id="i-egg" viewBox="0 0 48 48"><path d="M24 7c-8 0-13 14-13 22 0 8 6 13 13 13s13-5 13-13c0-8-5-22-13-22z"/><path d="M17 27c0-4 2-9 4-11"/></symbol>
+      <symbol id="i-whisk" viewBox="0 0 48 48"><path d="M24 44V31"/><path d="M24 31C14 23 16 6 24 6s10 17 0 25zM24 31c-5-8-4-22 0-25M24 31c5-8 4-22 0-25"/></symbol>
+      <symbol id="i-wheat" viewBox="0 0 48 48"><path d="M24 44V8"/><path d="M24 16c-5-1-7-5-6-8 4 1 6 4 6 8zM24 16c5-1 7-5 6-8-4 1-6 4-6 8zM24 25c-5-1-7-5-6-8 4 1 6 4 6 8zM24 25c5-1 7-5 6-8-4 1-6 4-6 8zM24 34c-5-1-7-5-6-8 4 1 6 4 6 8zM24 34c5-1 7-5 6-8-4 1-6 4-6 8z"/></symbol>
+      <symbol id="i-carrot" viewBox="0 0 48 48"><path d="M10 40 27 15c3-3 8-1 7 4z"/><path d="M31 15c0-5 2-8 5-10M32 17c3-4 7-5 10-4M29 14c-2-4-2-7 0-10M18 30l3 2M22 24l3 2"/></symbol>
+    </defs>
+  </svg>
   <header class="masthead">
     <div class="wrap topline">
       <span>Recipes from what you have</span>
@@ -30,6 +43,8 @@
     </div>
   </header>
 
+  <div class="ribbon" aria-hidden="true"><div class="ribbon-track"><svg class="sk"><use href="#i-lemon"/></svg><svg class="sk"><use href="#i-garlic"/></svg><svg class="sk"><use href="#i-chili"/></svg><svg class="sk"><use href="#i-herb"/></svg><svg class="sk"><use href="#i-egg"/></svg><svg class="sk"><use href="#i-whisk"/></svg><svg class="sk"><use href="#i-wheat"/></svg><svg class="sk"><use href="#i-carrot"/></svg><svg class="sk"><use href="#i-lemon"/></svg><svg class="sk"><use href="#i-garlic"/></svg><svg class="sk"><use href="#i-chili"/></svg><svg class="sk"><use href="#i-herb"/></svg><svg class="sk"><use href="#i-egg"/></svg><svg class="sk"><use href="#i-whisk"/></svg><svg class="sk"><use href="#i-wheat"/></svg><svg class="sk"><use href="#i-carrot"/></svg><svg class="sk"><use href="#i-lemon"/></svg><svg class="sk"><use href="#i-garlic"/></svg><svg class="sk"><use href="#i-chili"/></svg><svg class="sk"><use href="#i-herb"/></svg><svg class="sk"><use href="#i-egg"/></svg><svg class="sk"><use href="#i-whisk"/></svg><svg class="sk"><use href="#i-wheat"/></svg><svg class="sk"><use href="#i-carrot"/></svg><svg class="sk"><use href="#i-lemon"/></svg><svg class="sk"><use href="#i-garlic"/></svg><svg class="sk"><use href="#i-chili"/></svg><svg class="sk"><use href="#i-herb"/></svg><svg class="sk"><use href="#i-egg"/></svg><svg class="sk"><use href="#i-whisk"/></svg><svg class="sk"><use href="#i-wheat"/></svg><svg class="sk"><use href="#i-carrot"/></svg></div></div>
+
   <main>
     <!-- ============================ COOK ============================ -->
     <section id="view-cook" class="view" data-view="cook">
@@ -44,8 +59,12 @@
             <p class="kicker kicker--plain">Or start from</p>
             <ul>
               {% set names = ["a Sunday roast chicken", "a pot of pasta", "a tray of cookies", "a chickpea curry", "glazed salmon"] %}
+              {% set pics = ["roast-chicken", "pasta", "cookies", "curry", "salmon"] %}
               {% for s in sets %}
-              <li><button type="button" class="starter" data-ingredients="{{ s|join(', ') }}">{{ names[loop.index0] }}</button></li>
+              <li><button type="button" class="starter" data-ingredients="{{ s|join(', ') }}">
+                <img src="{{ url_for('static', filename='img/' ~ pics[loop.index0] ~ '.jpg') }}" alt="" width="56" height="56" loading="lazy">
+                <span class="starter-text">{{ names[loop.index0] }}<small>{{ s|join(' · ') }}</small></span>
+              </button></li>
               {% endfor %}
             </ul>
           </div>
@@ -85,7 +104,12 @@
         </form>
       </div>
 
-      <div class="wrap" id="progress" hidden>
+      <div class="wrap progress-wrap" id="progress" hidden>
+        <svg class="pot" viewBox="0 0 120 96" aria-hidden="true">
+          <g class="steam"><path d="M46 36c-5-7 5-12 0-21"/><path d="M60 34c-5-8 6-13 0-24"/><path d="M74 36c-5-7 5-12 0-21"/></g>
+          <g class="lid"><path d="M24 46h72"/><path d="M53 46c0-6 14-6 14 0"/></g>
+          <path d="M28 50h64v22c0 8-6 13-14 13H42c-8 0-14-5-14-13z"/><path d="M28 56H17M92 56h11"/>
+        </svg>
         <ol class="progress">
           <li data-step="read">Reading your list</li>
           <li data-step="write">Writing the recipe</li>

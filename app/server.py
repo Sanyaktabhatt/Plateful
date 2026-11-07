@@ -96,5 +96,17 @@ def comparison():
     return jsonify(data)
 
 
+def fetch_models():
+    """On a host without local weights, pull them from the Hugging Face model repo."""
+    if config.MODELS_REPO and not model.finetuned_available():
+        from huggingface_hub import snapshot_download
+        print(f"downloading models from {config.MODELS_REPO} ...", flush=True)
+        snapshot_download(config.MODELS_REPO, local_dir=str(config.MODELS_DIR),
+                          allow_patterns=["gpt2_recipes/*", "bert_ner/*"])
+
+
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5045, debug=False, threaded=True)
+    import os
+    fetch_models()
+    app.run(host=os.environ.get("HOST", "127.0.0.1"), port=int(os.environ.get("PORT", 5045)),
+            debug=False, threaded=True)

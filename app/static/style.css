@@ -163,9 +163,19 @@ code { font: 500 .82em var(--mono); background: var(--paper-2); padding: .1em .3
 .starters ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
 .starters li { border-bottom: 1px solid var(--rule); }
 .starter {
-  all: unset; cursor: pointer; display: flex; justify-content: space-between; width: 100%;
-  font: italic 400 22px/1.2 var(--display); padding: 12px 0;
+  all: unset; cursor: pointer; box-sizing: border-box; width: 100%;
+  display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 16px; align-items: center;
+  font: italic 400 22px/1.2 var(--display); padding: 10px 0;
   color: var(--ink);
+}
+.starter img {
+  width: 56px; height: 56px; object-fit: cover; display: block; border-radius: 50%;
+  border: 1px solid var(--rule); transition: transform .5s cubic-bezier(.2,.8,.2,1);
+}
+.starter:hover img, .starter:focus-visible img { transform: rotate(-12deg) scale(1.06); }
+.starter-text small {
+  display: block; font: 400 11px/1.5 var(--mono); font-style: normal; letter-spacing: .04em;
+  color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .starter::after { content: "→"; font-style: normal; color: var(--muted); transition: transform .2s; }
 .starter:hover::after, .starter:focus-visible::after { transform: translateX(4px); color: var(--tomato); }
@@ -474,3 +484,46 @@ textarea:focus { border-color: var(--tomato); }
 
 /* base GPT-2 emits long unbroken marker strings; let them wrap */
 .recipe-card h3, .recipe-title, .prose, .method-list li, .ing-list label { overflow-wrap: anywhere; }
+
+/* ------------------------------------------------------------ food sketches & motion */
+.ribbon {
+  overflow: hidden; border-bottom: 1px solid var(--rule); color: var(--muted);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+          mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  position: relative; z-index: 1;
+}
+.ribbon-track { display: flex; gap: 44px; width: max-content; padding: 12px 0; animation: drift 70s linear infinite; }
+.sk { width: 28px; height: 28px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; opacity: .75; }
+.sk:nth-child(3n+1) { color: var(--tomato); }
+.sk:nth-child(4n+2) { color: var(--olive); }
+@keyframes drift { to { transform: translateX(-50%); } }
+
+.progress-wrap { display: flex; align-items: center; gap: 28px; margin-bottom: 48px; }
+.progress-wrap .progress { flex: 1; margin: 0; }
+.pot, .plate { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.pot { width: 116px; flex: none; }
+.steam path { stroke: var(--tomato); stroke-width: 1.8; opacity: 0; animation: steam 2.4s ease-in-out infinite; }
+.steam path:nth-child(2) { animation-delay: .8s; }
+.steam path:nth-child(3) { animation-delay: 1.6s; }
+@keyframes steam {
+  0% { opacity: 0; transform: translateY(8px); }
+  40% { opacity: .9; }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+.lid { transform-origin: 60px 46px; animation: rattle 1.2s ease-in-out infinite; }
+@keyframes rattle { 0%, 70%, 100% { transform: none; } 78% { transform: translateY(-2px) rotate(-2deg); } 86% { transform: translateY(-1px) rotate(2deg); } }
+@media (max-width: 640px) { .pot { width: 64px; } .progress-wrap { gap: 16px; } }
+
+.photo-frame.loading { gap: 12px; align-content: center; }
+.plate { width: 62%; max-width: 260px; }
+.plate .steam path { stroke-width: 2; }
+
+.recipe-hero > div, .ing-list li, .method-list li { animation: rise .6s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i, 0) * 45ms); }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ribbon-track, .steam path, .lid, .recipe-hero > div, .ing-list li, .method-list li, .photo-frame img { animation: none !important; }
+  .steam path { opacity: .6; }
+  .starter img { transition: none; }
+}
+@media print { .ribbon { display: none; } }

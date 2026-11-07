@@ -91,6 +91,8 @@ def parse_output(text: str) -> Recipe:
 
     title_part, _, rest = body.partition(INGREDIENT_LIST)
     r.title = title_part.strip().split("\n")[0].strip()[:120]
+    # RecipeNLG titles are title-cased naively ("Mom'S"); the model copies that.
+    r.title = re.sub(r"(\w)'S\b", r"\1's", r.title)
     ing_part, _, dir_part = rest.partition(DIRECTIONS)
 
     for line in ing_part.splitlines():
